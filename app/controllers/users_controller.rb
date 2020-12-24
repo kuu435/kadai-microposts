@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :require_user_logged_in, only: [:index, :show, :followings, :followers]
+  before_action :require_user_logged_in, only: [:index, :show, :followings, :followers,:likes]
 
   def index
     @users = User.order(id: :desc).page(params[:page]).per(25)
@@ -7,7 +7,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    @microposts = @user.microposts.order(id: :desc).page(params[:page])
+    @microposts = @user.favorite_microposts.order(id: :desc).page(params[:page])
     counts(@user)
   end
 
@@ -21,9 +21,12 @@ class UsersController < ApplicationController
     if @user.save
       flash[:success] = 'ユーザを登録しました。'
       redirect_to @user
+      
     else
       flash.now[:danger] = 'ユーザの登録に失敗しました。'
       render :new
+
+      
     end
   end
 
@@ -38,7 +41,24 @@ class UsersController < ApplicationController
     @followers = @user.followers.page(params[:page])
     counts(@user)
   end
-
+  
+  def favorites
+    @micropost = Micropost.find(params[:id])
+    @favorites = @micropost.favorites.page(params[:page])
+    counts(@micropost)
+  end
+  
+  def favorite?
+      @micropost = Micropost.find(params[:id])
+      @favorites = @micropost.favorites.page(params[:page])
+  end
+  
+  def likes
+    @user = User.find(params[:id])
+    @favorite_microposts = @user.favorite_microposts.page(params[:page])
+    counts(@user)
+  end
+  
   private
 
   def user_params
