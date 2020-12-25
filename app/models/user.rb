@@ -31,6 +31,10 @@ has_many :favorite_microposts, through:  :favorites, source: :micropost, depende
     self.followings.include?(other_user)
   end
   
+  def feed_microposts
+    Micropost.where(user_id: self.following_ids + [self.id])
+  end
+  
    
   def favorite(micropost) 
     self.favorites.find_or_create_by(micropost_id: micropost.id)
